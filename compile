@@ -1,0 +1,13 @@
+#!/bin/sh
+
+rm -r -f output
+mkdir output
+
+#compile coffee-script
+./node_modules/.bin/coffee --compile --output output/js/ src/
+
+#make chatle.js
+cat output/js/chatle.js >> output/chatle.js
+
+#make bindit-min.js
+java -jar libs/compiler.jar --js output/chatle.js --js_output_file output/chatle-min.js --compilation_level SIMPLE_OPTIMIZATIONS
