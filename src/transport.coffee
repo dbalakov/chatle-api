@@ -1,11 +1,12 @@
 class Transport
-  constructor: (@key)->
-    throw new Error('ChatleClient.Transport constructor call without api key') if arguments.length == 0
+  constructor: (@host, @key)->
+    throw new Error('ChatleClient.Transport constructor call without host') if !@host?
+    throw new Error('ChatleClient.Transport constructor call without key') if !@key?
 
   get: (url, data, callback)->
     $.ajax {
       type    : 'GET'
-      url     : url
+      url     : "#{@host}/#{url}"
       data    : data
       headers : { 'X-AppKey' : @key }
       success : (result)-> callback? null, result
@@ -15,7 +16,7 @@ class Transport
   post: (url, data, callback)->
     $.ajax {
       type     : 'POST'
-      url      : url
+      url      : "#{@host}/#{url}"
       data     : data
       headers  : { 'X-AppKey' : @key }
       success  : (result)-> callback? null, result
@@ -25,7 +26,7 @@ class Transport
   put: (url, data, callback)->
     $.ajax {
       type     : 'PUT'
-      url      : url
+      url      : "#{@host}/#{url}"
       data     : data
       headers  : { 'X-AppKey' : @key }
       success  : (result)-> callback? null, result
@@ -35,11 +36,11 @@ class Transport
   delete: (url, data, callback)->
     $.ajax {
       type     : 'DELETE'
-      url      : url
+      url      : "#{@host}/#{url}"
       data     : data
       headers  : { 'X-AppKey' : @key }
       success  : (result)-> callback? null, result
       error    : (req, status)-> callback? status
     }
 
-window.ChatleClient.Transport = Transport
+ChatleClient.Transport = Transport

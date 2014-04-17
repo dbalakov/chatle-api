@@ -1,6 +1,6 @@
-module 'ChatleClient: Constructor'
+module 'ChatleClient'
 
-test 'Constructor without arguments throw exception', ->
+test 'Constructor without arguments', ->
   throws (-> client = new ChatleClient), 'Constructor without key throw exception'
 
 test 'Constructor with key only', ->
@@ -20,3 +20,7 @@ test 'Full constructor', ->
   equal client.key, 'key', 'See valid key'
   equal client.host, 'another host', 'See valid host'
   equal client.transport, 'transport', 'See valid transport'
+
+test 'Auth', ->
+  client = new ChatleClient 'key'
+  ok client.auth instanceof ChatleClient.Auth, 'auth instanceof ChatleClient.Auth'
