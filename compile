@@ -7,7 +7,8 @@ mkdir output
 ./node_modules/.bin/coffee --compile --output output/js/ src/
 
 #make chatle.js
-cat output/js/chatle.js >> output/chatle.js
+cat output/js/ChatleClient.js >> output/chatle.js
+cat output/js/Transport.js    >> output/chatle.js
 
 #make bindit-min.js
 java -jar libs/compiler.jar --js output/chatle.js --js_output_file output/chatle.min.js --compilation_level SIMPLE_OPTIMIZATIONS
