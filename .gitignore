@@ -4,6 +4,6 @@
 *.iml
 
 node_modules
-tests/public/vendor
+vendor
 
 output
