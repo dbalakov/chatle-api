@@ -1,6 +1,6 @@
 class Auth
   constructor: (@client)->
-    throw new Error('ChatleClient.Auth constructor call without client') if arguments.length == 0 || !@client?
+    throw new Error('ChatleClient.Auth constructor call without client') if !@client?
 
   registerMobile: (number, callback)->
     @client.transport.get "#{Auth.URL}#{Auth.REGISTER_MOBILE_URL}", { number : number }, callback
@@ -13,6 +13,7 @@ class Auth
 
 
 Auth.URL = 'api/auth/'
+
 Auth.REGISTER_MOBILE_URL = 'register_mobile'
 Auth.REGISTER_EMAIL_URL = 'email'
 Auth.CONFIRM_CODE_URL = 'confirm_code'

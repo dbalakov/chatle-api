@@ -7,6 +7,8 @@ class ChatleClient
     @transport = new ChatleClient.Transport(@host, @key) if !@transport?
 
     @auth = new ChatleClient.Auth @
+    @rooms = new ChatleClient.Rooms @
+    @users = new ChatleClient.Users @
 
 ChatleClient.DEFAULT_HOST = 'https://chatle.co'
 

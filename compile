@@ -10,6 +10,8 @@ mkdir output
 cat output/js/ChatleClient.js >> output/chatle.js
 cat output/js/Transport.js    >> output/chatle.js
 cat output/js/Auth.js         >> output/chatle.js
+cat output/js/Rooms.js        >> output/chatle.js
+cat output/js/Users.js        >> output/chatle.js
 
 #make bindit-min.js
 java -jar libs/compiler.jar --js output/chatle.js --js_output_file output/chatle.min.js --compilation_level SIMPLE_OPTIMIZATIONS

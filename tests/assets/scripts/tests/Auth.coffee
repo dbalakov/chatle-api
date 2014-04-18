@@ -1,11 +1,11 @@
 module 'Auth'
 
 test 'Constructor', ->
-  throws (-> auth = new ChatleClient.Auth), 'Constructor without ChatleClient throw exception'
-  throws (-> auth = new ChatleClient.Auth null), 'Call constructor with (client=null) throw exception'
+  throws (-> new ChatleClient.Auth), 'Constructor without ChatleClient throw exception'
+  throws (-> new ChatleClient.Auth null), 'Call constructor with (client=null) throw exception'
   key = 'key'
-  client = new ChatleClient(key)
-  auth = new ChatleClient.Auth(client)
+  client = new ChatleClient key
+  auth = new ChatleClient.Auth client
   equal auth.client, client, 'See valid client'
 
 test 'registerMobile', ->

@@ -21,6 +21,8 @@ test 'Full constructor', ->
   equal client.host, 'another host', 'See valid host'
   equal client.transport, 'transport', 'See valid transport'
 
-test 'Auth', ->
+test 'Models', ->
   client = new ChatleClient 'key'
   ok client.auth instanceof ChatleClient.Auth, 'auth instanceof ChatleClient.Auth'
+  ok client.rooms instanceof ChatleClient.Rooms, 'rooms instanceof ChatleClient.Rooms'
+  ok client.users instanceof ChatleClient.Users, 'users instanceof ChatleClient.Rooms'
