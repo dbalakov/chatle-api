@@ -13,5 +13,5 @@ cat output/js/Auth.js         >> output/chatle.js
 cat output/js/Rooms.js        >> output/chatle.js
 cat output/js/Users.js        >> output/chatle.js
 
-#make bindit-min.js
+#make chatle.min.js
 java -jar libs/compiler.jar --js output/chatle.js --js_output_file output/chatle.min.js --compilation_level SIMPLE_OPTIMIZATIONS
