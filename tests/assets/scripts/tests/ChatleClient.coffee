@@ -10,9 +10,9 @@ test 'Constructor with key only', ->
   ok client.transport instanceof ChatleClient.Transport, 'See valid transport'
 
 test 'Constructor with key and host', ->
-  client = new ChatleClient 'key', 'another host'
+  client = new ChatleClient 'key', 'https://chatle.co/system/widgets/_out/api.html#{}'
   equal client.key, 'key', 'See valid key'
-  equal client.host, 'another host', 'See valid host'
+  equal client.host, 'https://chatle.co/system/widgets/_out/api.html#{}', 'See valid host'
   ok client.transport instanceof ChatleClient.Transport, 'See valid transport'
 
 test 'Full constructor', ->

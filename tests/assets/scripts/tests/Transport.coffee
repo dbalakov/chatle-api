@@ -1,114 +1,102 @@
 module 'Transport'
 
 test 'Constructor', ->
-  throws (-> client = new ChatleClient.Transport), 'Constructor without host throw exception'
+  throws (-> client = new ChatleClient.Transport), 'Constructor without frame_url throw exception'
   throws (-> client = new ChatleClient.Transport 'host'), 'Constructor without key throw exception'
 
-  transport = new ChatleClient.Transport 'host', 'key'
+  transport = new ChatleClient.Transport 'https://chatle.co/system/widgets/_out/api.html', 'key'
 
-  equal transport.host, 'host', 'See valid host'
+  equal transport.frame_url, 'https://chatle.co/system/widgets/_out/api.html', 'See valid frame_url'
   equal transport.key, 'key', 'See valid key'
+  equal transport.iframe.nodeType, 1, 'See valid iframe.nodeType'
+  equal transport.iframe.tagName, 'IFRAME', 'See valid iframe.tagName'
+  equal transport.iframe.parentNode, document.body, 'See valid iframe.parentNode'
+  equal transport.iframe.getAttribute('style'), 'width:0;height:0;display:none'
+
+asyncTest 'interval: call sendCommandToFrame', ->
+  transport = new ChatleClient.Transport 'https://chatle.co/system/widgets/_out/api.html', 'key'
+  called = false
+  transport.sendCommandToFrame = ->
+    return if called
+    called = true
+    ok (-> called), 'called'
+
+  setTimeout (-> start()), 1000
+
+test "interval: transport busy - didn't call sendCommandToFrame", ->
+  transport = new ChatleClient.Transport 'https://chatle.co/system/widgets/_out/api.html', 'key'
+  transport.data = { hash : '' }
+  transport.sendCommandToFrame = sinon.spy()
+  transport.interval()
+  ok transport.sendCommandToFrame.notCalled, "didn't call sendCommandToFrame"
+
+test "interval: call callback with data", ->
+  data = { hash : '', callback : sinon.spy() }
+  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
+  transport.data = data
+  transport.iframe.src = 'http://localhost:3300/tests.html#{"status":"ok","data":{"a":1}}'
+  transport.interval()
+  ok data.callback.calledWith(null, { a : 1 }), 'Called with valid arguments'
+
+test "interval: call callback with error", ->
+  data = { hash : '', callback : sinon.spy() }
+  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
+  transport.data = data
+  transport.iframe.src = 'http://localhost:3300/tests.html#{"status":"error","errorStatus":404}'
+  transport.interval()
+  ok data.callback.calledWith(404, null), 'Called with valid arguments'
+
+test "sendCommandToFrame", ->
+  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
+  transport.queue.push { command : { type : 'get', url : 'api/url', data : 'data' } }
+
+  transport.sendCommandToFrame()
+
+  equal transport.iframe.src, 'http://localhost:3300/tests.html#{"type":"get","url":"api/url","data":"data"}', 'See valid iframe url'
+  equal transport.queue.length, 0, 'See valid queue'
+
+test "sendCommand", ->
+  callback = ->
+  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
+  transport.sendCommandToFrame = sinon.spy()
+
+  transport.sendCommand 'GET', 'api/url', { a : 1 }, callback
+
+  deepEqual transport.queue, [ { command : { type : 'GET', url : 'api/url', data : { a : 1 }, headers : { "X-AppKey" : 'key' } }, callback : callback } ], 'See valid queue'
+  ok transport.sendCommandToFrame.calledOnce, 'sendCommandToFrame called'
 
 test 'get', ->
-  { host, key, url, data } = { host : 'host', key : 'key', url : 'url', data : 'data' }
-  $.ajax = sinon.spy()
-  transport = new ChatleClient.Transport host, key
-  transport.get url, data
-  ok $.ajax.calledWithMatch {
-    type    : 'GET'
-    url     : 'host/url'
-    data    : data
-    headers : { 'X-AppKey' : key }
-  }
+  callback = ->
+  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
+  transport.sendCommand = sinon.spy()
 
-test 'get: success', ->
-  { host, key, url, data, result, callback } = { host : 'host', key : 'key', url : 'url', data : 'data', result : 'result', callback : sinon.spy() }
-  $.ajax = (settings)-> settings.success result
-  transport = new ChatleClient.Transport host, key
-  transport.get url, data, callback
-  ok callback.calledWith(null, result), 'Call callback'
+  transport.get 'api/url', { a : 1 }, callback
 
-test 'get: error', ->
-  { host, key, url, data, error, callback } = { host : 'host', key : 'key', url : 'url', data : 'data', error : 'result', callback : sinon.spy() }
-  $.ajax = (settings)-> settings.error null, error
-  transport = new ChatleClient.Transport host, key
-  transport.get url, data, callback
-  ok callback.calledWith(error), 'Call callback'
+  ok transport.sendCommand.calledWith('GET', 'api/url', { a : 1 }, callback), 'Called with valid arguments'
 
 test 'post', ->
-  { host, key, url, data } = { host : 'host', key : 'key', url : 'url', data : 'data' }
-  $.ajax = sinon.spy()
-  transport = new ChatleClient.Transport host, key
-  transport.post url, data
-  ok $.ajax.calledWithMatch {
-    type    : 'POST'
-    url     : 'host/url'
-    data    : data
-    headers : { 'X-AppKey' : key }
-  }
+  callback = ->
+  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
+  transport.sendCommand = sinon.spy()
 
-test 'post: success', ->
-  { host, key, url, data, result, callback } = { host : 'host', key : 'key', url : 'url', data : 'data', result : 'result', callback : sinon.spy() }
-  $.ajax = (settings)-> settings.success result
-  transport = new ChatleClient.Transport host, key
-  transport.post url, data, callback
-  ok callback.calledWith(null, result), 'Call callback'
+  transport.post 'api/url', { a : 1 }, callback
 
-test 'post: error', ->
-  { host, key, url, data, error, callback } = { host : 'host', key : 'key', url : 'url', data : 'data', error : 'result', callback : sinon.spy() }
-  $.ajax = (settings)-> settings.error null, error
-  transport = new ChatleClient.Transport host, key
-  transport.post url, data, callback
-  ok callback.calledWith(error), 'Call callback'
+  ok transport.sendCommand.calledWith('POST', 'api/url', { a : 1 }, callback), 'Called with valid arguments'
 
 test 'put', ->
-  { host, key, url, data } = { host : 'host', key : 'key', url : 'url', data : 'data' }
-  $.ajax = sinon.spy()
-  transport = new ChatleClient.Transport host, key
-  transport.put url, data
-  ok $.ajax.calledWithMatch {
-    type    : 'PUT'
-    url     : 'host/url'
-    data    : data
-    headers : { 'X-AppKey' : key }
-  }
+  callback = ->
+  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
+  transport.sendCommand = sinon.spy()
 
-test 'put: success', ->
-  { host, key, url, data, result, callback } = { host : 'host', key : 'key', url : 'url', data : 'data', result : 'result', callback : sinon.spy() }
-  $.ajax = (settings)-> settings.success result
-  transport = new ChatleClient.Transport host, key
-  transport.put url, data, callback
-  ok callback.calledWith(null, result), 'Call callback'
+  transport.put 'api/url', { a : 1 }, callback
 
-test 'put: error', ->
-  { host, key, url, data, error, callback } = { host : 'host', key : 'key', url : 'url', data : 'data', error : 'result', callback : sinon.spy() }
-  $.ajax = (settings)-> settings.error null, error
-  transport = new ChatleClient.Transport host, key
-  transport.put url, data, callback
-  ok callback.calledWith(error), 'Call callback'
+  ok transport.sendCommand.calledWith('PUT', 'api/url', { a : 1 }, callback), 'Called with valid arguments'
 
 test 'delete', ->
-  { host, key, url, data } = { host : 'host', key : 'key', url : 'url', data : 'data' }
-  $.ajax = sinon.spy()
-  transport = new ChatleClient.Transport host, key
-  transport.delete url, data
-  ok $.ajax.calledWithMatch {
-    type    : 'DELETE'
-    url     : 'host/url'
-    data    : data
-    headers : { 'X-AppKey' : key }
-  }
+  callback = ->
+  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
+  transport.sendCommand = sinon.spy()
 
-test 'delete: success', ->
-  { host, key, url, data, result, callback } = { host : 'host', key : 'key', url : 'url', data : 'data', result : 'result', callback : sinon.spy() }
-  $.ajax = (settings)-> settings.success result
-  transport = new ChatleClient.Transport host, key
-  transport.delete url, data, callback
-  ok callback.calledWith(null, result), 'Call callback'
+  transport.delete 'api/url', { a : 1 }, callback
 
-test 'delete: error', ->
-  { host, key, url, data, error, callback } = { host : 'host', key : 'key', url : 'url', data : 'data', error : 'result', callback : sinon.spy() }
-  $.ajax = (settings)-> settings.error null, error
-  transport = new ChatleClient.Transport host, key
-  transport.delete url, data, callback
-  ok callback.calledWith(error), 'Call callback'
+  ok transport.sendCommand.calledWith('DELETE', 'api/url', { a : 1 }, callback), 'Called with valid arguments'
