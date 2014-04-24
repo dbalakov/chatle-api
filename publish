@@ -1,0 +1,9 @@
+#!/bin/sh
+
+./compile
+./node_modules/.bin/coffee release/index.coffee
+
+version=`cat version`
+
+git add -A
+git commit -m "ver $version"
