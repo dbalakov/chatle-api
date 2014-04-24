@@ -7,3 +7,4 @@ version=`cat version`
 
 git add -A
 git commit -m "ver $version"
+git tag -a "v$version" -m "Version $version"
