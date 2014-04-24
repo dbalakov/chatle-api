@@ -6,5 +6,23 @@
 version=`cat version`
 
 git add -A
-git commit -m "ver $version"
+git commit -m "Version $version"
 git tag -a "v$version" -m "Version $version"
+
+git push
+git push --tags
+
+rm ../chatle-api.release/chatle.js
+rm ../chatle-api.release/chatle.min.js
+
+cp output/chatle.js ../chatle-api.release/
+cp output/chatle.min.js ../chatle-api.release/
+
+cd ../chatle-api.release/
+
+git add -A
+git commit -m "Version $version"
+git tag -a "v$version" -m "Version $version"
+
+git push
+git push --tags
