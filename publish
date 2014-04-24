@@ -1,7 +1,7 @@
 #!/bin/sh
 
-./compile
 ./node_modules/.bin/coffee release/index.coffee
+./compile
 
 version=`cat version`
 
