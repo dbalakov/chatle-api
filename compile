@@ -3,15 +3,21 @@
 rm -r -f output
 mkdir output
 
+version=`cat version`
+
 #compile coffee-script
 ./node_modules/.bin/coffee --compile --output output/js/ src/
 
 #make chatle.js
-cat output/js/ChatleClient.js >> output/chatle.js
-cat output/js/Transport.js    >> output/chatle.js
-cat output/js/Auth.js         >> output/chatle.js
-cat output/js/Rooms.js        >> output/chatle.js
-cat output/js/Users.js        >> output/chatle.js
+echo "// Chatle api (version $version)" >> output/chatle.js
+cat output/js/ChatleClient.js           >> output/chatle.js
+cat output/js/Transport.js              >> output/chatle.js
+cat output/js/Auth.js                   >> output/chatle.js
+cat output/js/Rooms.js                  >> output/chatle.js
+cat output/js/Users.js                  >> output/chatle.js
 
 #make chatle.min.js
-java -jar libs/compiler.jar --js output/chatle.js --js_output_file output/chatle.min.js --compilation_level SIMPLE_OPTIMIZATIONS
+java -jar libs/compiler.jar --js output/chatle.js --js_output_file output/chatle.compile.js --compilation_level SIMPLE_OPTIMIZATIONS
+
+echo "// Chatle api (version $version)" >> output/chatle.min.js
+cat output/chatle.compile.js            >> output/chatle.min.js
