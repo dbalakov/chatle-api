@@ -12,7 +12,7 @@ class Auth
     @client.transport.get "#{Auth.URL}#{Auth.CONFIRM_CODE_URL}", { confirmation_id : confirmation_id, code : code, display_name : display_name }, callback
 
 
-Auth.URL = 'api/auth/'
+Auth.URL = '/api/auth/'
 
 Auth.REGISTER_MOBILE_URL = 'register_mobile'
 Auth.REGISTER_EMAIL_URL = 'email'

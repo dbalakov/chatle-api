@@ -14,7 +14,7 @@ test 'me', ->
 
   users.me callback
 
-  ok users.client.transport.get.calledWith 'api/users/me', null, callback
+  ok users.client.transport.get.calledWith '/api/users/me', null, callback
 
 test 'info', ->
   { id, callback } = { id : 'user_id', callback : -> }
@@ -22,7 +22,7 @@ test 'info', ->
 
   users.info id, callback
 
-  ok users.client.transport.get.calledWith 'api/users/user_id', null, callback
+  ok users.client.transport.get.calledWith '/api/users/user_id', null, callback
 
 test 'update', ->
   { first_name, last_name, display_name, callback } = { first_name : 'f_name', last_name : 'l_name', display_name : 'd_name', callback : -> }
@@ -30,7 +30,7 @@ test 'update', ->
 
   users.update first_name, last_name, display_name, callback
 
-  ok users.client.transport.post.calledWith 'api/users/me', { first_name : 'f_name', last_name : 'l_name', display_name : 'd_name' }, callback
+  ok users.client.transport.post.calledWith '/api/users/me', { first_name : 'f_name', last_name : 'l_name', display_name : 'd_name' }, callback
 
 createUsers = (key)->
   client = new ChatleClient key

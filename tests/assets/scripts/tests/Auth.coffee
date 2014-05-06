@@ -14,7 +14,7 @@ test 'registerMobile', ->
 
   auth.registerMobile number, callback
 
-  ok auth.client.transport.get.calledWith 'api/auth/register_mobile', { number : 'number' }, callback
+  ok auth.client.transport.get.calledWith '/api/auth/register_mobile', { number : 'number' }, callback
 
 test 'confirmCode', ->
   { key, confirmation_id, code, display_name, callback } = { key : 'key', confirmation_id : 'confirmation_id', code : 'code', display_name : 'display_name', callback : -> }
@@ -22,7 +22,7 @@ test 'confirmCode', ->
 
   auth.confirmCode confirmation_id, code, display_name, callback
 
-  ok auth.client.transport.get.calledWith 'api/auth/confirm_code', { confirmation_id : 'confirmation_id', code : 'code', display_name : 'display_name' }, callback
+  ok auth.client.transport.get.calledWith '/api/auth/confirm_code', { confirmation_id : 'confirmation_id', code : 'code', display_name : 'display_name' }, callback
 
 test 'registerEmail', ->
   { key, email, callback } = { key : 'key', email : 'email', callback : -> }
@@ -30,7 +30,7 @@ test 'registerEmail', ->
 
   auth.registerEmail email, callback
 
-  ok auth.client.transport.get.calledWith 'api/auth/email', { email : 'email' }, callback
+  ok auth.client.transport.get.calledWith '/api/auth/email', { email : 'email' }, callback
 
 
 createAuth = (key)->

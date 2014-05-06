@@ -11,7 +11,7 @@ class Users
   update: (first_name, last_name, display_name, callback)->
     @client.transport.post "#{Users.URL}/#{Users.UPDATE_URL}", { first_name : first_name, last_name : last_name, display_name : display_name }, callback
 
-Users.URL = 'api/users'
+Users.URL = '/api/users'
 
 Users.ME_URL = 'me'
 Users.UPDATE_URL = 'me'

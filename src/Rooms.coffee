@@ -31,7 +31,7 @@ class Rooms
   leave: (room, callback)->
     @client.transport.get "#{Rooms.URL}/#{room}/#{Rooms.LEAVE}", null, callback
 
-Rooms.URL = 'api/rooms'
+Rooms.URL = '/api/rooms'
 
 Rooms.SEND_MESSAGE_URL        = 'message'
 Rooms.CREATE_PRIVATE_ROOM_URL = 'private'

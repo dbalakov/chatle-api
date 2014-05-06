@@ -13,7 +13,7 @@ test 'list', ->
   rooms = createRooms 'key'
   rooms.list callback
 
-  ok rooms.client.transport.get.calledWith 'api/rooms', null, callback
+  ok rooms.client.transport.get.calledWith '/api/rooms', null, callback
 
 test 'messages', ->
   { id, filter, callback } = { id : 'room_id', filter : 'filter', callback : -> }
@@ -21,7 +21,7 @@ test 'messages', ->
 
   rooms.messages id, filter, callback
 
-  ok rooms.client.transport.get.calledWith 'api/rooms/room_id', filter, callback
+  ok rooms.client.transport.get.calledWith '/api/rooms/room_id', filter, callback
 
 test 'sendMessage', ->
   { id, message, callback } = { id : 'room_id', message : 'message_text', callback : -> }
@@ -29,7 +29,7 @@ test 'sendMessage', ->
 
   rooms.sendMessage id, message, callback
 
-  ok rooms.client.transport.post.calledWith 'api/rooms/room_id/message', { text : message }, callback
+  ok rooms.client.transport.post.calledWith '/api/rooms/room_id/message', { text : message }, callback
 
 test 'deleteMessage', ->
   { id, message, callback } = { id : 'room_id', message : 'message_id', callback : -> }
@@ -37,7 +37,7 @@ test 'deleteMessage', ->
 
   rooms.deleteMessage id, message, callback
 
-  ok rooms.client.transport.delete.calledWith 'api/rooms/room_id/message_id', null, callback
+  ok rooms.client.transport.delete.calledWith '/api/rooms/room_id/message_id', null, callback
 
 test 'createPrivate', ->
   { user, group, callback } = { user : 'another_user', group : 'group', callback : -> }
@@ -45,7 +45,7 @@ test 'createPrivate', ->
 
   rooms.createPrivate user, group, callback
 
-  ok rooms.client.transport.get.calledWith 'api/rooms/private', { user_id : 'another_user', group : 'group' }, callback
+  ok rooms.client.transport.get.calledWith '/api/rooms/private', { user_id : 'another_user', group : 'group' }, callback
 
 test 'createInviteOnly', ->
   { users, group, name, callback } = { users : [ 1, 2, 3, 5, 8 ], group : 'group', name : 'room_name', callback : -> }
@@ -53,7 +53,7 @@ test 'createInviteOnly', ->
 
   rooms.createInviteOnly users, group, name, callback
 
-  ok rooms.client.transport.get.calledWith 'api/rooms/group', { user_ids : [ 1, 2, 3, 5, 8 ], group : 'group', name : 'room_name' }, callback
+  ok rooms.client.transport.get.calledWith '/api/rooms/group', { user_ids : [ 1, 2, 3, 5, 8 ], group : 'group', name : 'room_name' }, callback
 
 test 'update', ->
   { id, group, name, mute, data, callback } = { id : 'room_id', group : 'group', name : 'new_name', mute : false, data : 'hash_data', callback : -> }
@@ -61,7 +61,7 @@ test 'update', ->
 
   rooms.update id, group, name, mute, data, callback
 
-  ok rooms.client.transport.put.calledWith 'api/rooms/room_id', { group : 'group', name : 'new_name', mute : false, data : 'hash_data' }, callback
+  ok rooms.client.transport.put.calledWith '/api/rooms/room_id', { group : 'group', name : 'new_name', mute : false, data : 'hash_data' }, callback
 
 test 'invite user', ->
   { id, user, callback } = { id : 'room_id', user : 'user_id', callback : -> }
@@ -69,7 +69,7 @@ test 'invite user', ->
 
   rooms.invite id, user, callback
 
-  ok rooms.client.transport.get.calledWith 'api/rooms/room_id/invite', { user : user }, callback
+  ok rooms.client.transport.get.calledWith '/api/rooms/room_id/invite', { user : user }, callback
 
 test 'invite users', ->
   { id, users, callback } = { id : 'room_id', users : [ 2, 3, 5, 8, 13 ], callback : -> }
@@ -77,7 +77,7 @@ test 'invite users', ->
 
   rooms.invite id, users, callback
 
-  ok rooms.client.transport.get.calledWith 'api/rooms/room_id/invite', { user_ids : users }, callback
+  ok rooms.client.transport.get.calledWith '/api/rooms/room_id/invite', { user_ids : users }, callback
 
 test 'leave', ->
   { id, callback } = { id : 'room_id', callback : -> }
@@ -85,7 +85,7 @@ test 'leave', ->
 
   rooms.leave id, callback
 
-  ok rooms.client.transport.get.calledWith 'api/rooms/room_id/leave', null, callback
+  ok rooms.client.transport.get.calledWith '/api/rooms/room_id/leave', null, callback
 
 createRooms = (key)->
   client = new ChatleClient key
