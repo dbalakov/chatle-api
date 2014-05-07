@@ -1,3 +1,8 @@
+#TODO Add init transport callback
+#TODO Add transport_id
+#TODO Remove add & add async
+#TODO Test it all :)
+
 class Transport
   constructor: (@frame_url, @key)->
     throw new Error('ChatleClient.Transport constructor call without frame_url') if !@frame_url?
@@ -11,7 +16,11 @@ class Transport
     @queue = []
     @data = null
 
-    setInterval @interval.bind(@)
+    #setInterval @interval.bind(@)
+    window.addEventListener 'message', (event)->
+      return unless @data?
+      result = event.data
+      @data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
 
   interval : ->
     if @data?
@@ -25,11 +34,11 @@ class Transport
   sendCommandToFrame: ->
     return if @data? || @queue.length == 0
     @data = @queue.shift()
-    @data.hash = JSON.stringify @data.command
-    @iframe.src = "#{@frame_url}##{@data.hash}"
+
+    @iframe.contentWindow.postMessage(@data.command, '*');
 
   sendCommand: (type, url, data, callback)->
-    @queue.push { command : { type : type, url : url, data : data, headers : { "X-AppKey" : @key } }, callback : callback }
+    @queue.push { command : { id : 1, type : type, url : url, data : data, headers : { "X-AppKey" : @key } }, callback : callback }
     @sendCommandToFrame()
 
   get: (url, data, callback)->
