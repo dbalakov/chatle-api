@@ -34,6 +34,9 @@ class Transport
   sendCommandToFrame: ->
     return if @data? || @queue.length == 0
     @data = @queue.shift()
+    if @authToken? #TODO Test it
+      @data.command.headers = {} unless @data.command.headers?
+      @data.command.headers['X-Auth-Token'] = @authToken
 
     @iframe.contentWindow.postMessage(@data.command, '*');
 
