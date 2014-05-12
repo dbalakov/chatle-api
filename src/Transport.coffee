@@ -20,6 +20,7 @@ class Transport
       return unless @data?
       result = event.data
       @data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
+      @data = null
 
   interval : ->
     if @data?
