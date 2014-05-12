@@ -16,8 +16,7 @@ class Transport
     @queue = []
     @data = null
 
-    #setInterval @interval.bind(@)
-    window.addEventListener 'message', (event)->
+    window.addEventListener 'message', (event)=>
       return unless @data?
       result = event.data
       @data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
