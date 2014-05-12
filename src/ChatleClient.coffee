@@ -8,6 +8,6 @@ class ChatleClient
     @rooms = new ChatleClient.Rooms @
     @users = new ChatleClient.Users @
 
-ChatleClient.DEFAULT_HOST = 'https://chatle.co/system/widgets/_out/api.html'
+ChatleClient.DEFAULT_HOST = 'https://chatle.co/system/widgets/api/api.html'
 
 window.ChatleClient = ChatleClient
