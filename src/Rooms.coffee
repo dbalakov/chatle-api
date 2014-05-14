@@ -1,3 +1,5 @@
+GUID_CHARS = '0123456789QWERTYUIOPASDFGHJKLZXCVBNM'
+
 class Rooms
   constructor: (@client)->
     throw new Error('ChatleClient.Rooms constructor call without client') if !@client?
@@ -9,7 +11,7 @@ class Rooms
     @client.transport.get "#{Rooms.URL}/#{room}", filter, callback
 
   sendMessage: (room, message, callback)->
-    @client.transport.post "#{Rooms.URL}/#{room}/#{Rooms.SEND_MESSAGE_URL}", { text : message }, callback
+    @client.transport.post "#{Rooms.URL}/#{room}/#{Rooms.SEND_MESSAGE_URL}", { message : { text : message, guid : generateGuid() } }, callback
 
   deleteMessage: (room, message, callback)->
     @client.transport.delete "#{Rooms.URL}/#{room}/#{message}", null, callback
@@ -38,5 +40,10 @@ Rooms.CREATE_PRIVATE_ROOM_URL = 'private'
 Rooms.CREATE_INVITE_ONLY_URL  = 'group'
 Rooms.INVITE_USERS            = 'invite'
 Rooms.LEAVE                   = 'leave'
+
+generateGuid = ->
+  result = ''
+  result += GUID_CHARS[Math.round(Math.random() * (GUID_CHARS.length - 1))]
+  result
 
 ChatleClient.Rooms = Rooms

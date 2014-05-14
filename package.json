@@ -1,6 +1,6 @@
 {
   "name": "chatle-client",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "Chatle client",
   "dependencies": {
     "coffee-script": "~1.6.3",
