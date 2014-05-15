@@ -19,16 +19,18 @@ class Transport
     window.addEventListener 'message', (event)=>
       return unless @data?
       result = event.data
-      @data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
+      data = @data
       @data = null
+      data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
 
   interval : ->
     if @data?
       hash = @iframe.src.split('#')[1]
       return if !hash? || hash == @data.hash || hash == ''
       result = JSON.parse hash
+      data = @data
       @data = null
-      @data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
+      data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
     @sendCommandToFrame()
 
   sendCommandToFrame: ->
