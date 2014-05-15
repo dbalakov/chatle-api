@@ -43,7 +43,7 @@ Rooms.LEAVE                   = 'leave'
 
 generateGuid = ->
   result = ''
-  result += GUID_CHARS[Math.round(Math.random() * (GUID_CHARS.length - 1))]
+  result += GUID_CHARS[Math.round(Math.random() * (GUID_CHARS.length - 1))] for i in [0..31]
   result
 
 ChatleClient.Rooms = Rooms

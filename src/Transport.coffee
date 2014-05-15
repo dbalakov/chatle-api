@@ -22,6 +22,7 @@ class Transport
       data = @data
       @data = null
       data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
+      @sendCommandToFrame()
 
     setInterval @sendCommandToFrame, 100
 
