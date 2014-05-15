@@ -27,8 +27,8 @@ class Transport
       hash = @iframe.src.split('#')[1]
       return if !hash? || hash == @data.hash || hash == ''
       result = JSON.parse hash
-      @data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
       @data = null
+      @data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
     @sendCommandToFrame()
 
   sendCommandToFrame: ->
