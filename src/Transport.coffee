@@ -9,7 +9,7 @@ class Transport
     throw new Error('ChatleClient.Transport constructor call without key') if !@key?
 
     @iframe = document.createElement 'iframe'
-    @iframe.src = @frame_url
+    @iframe.src = "#{@frame_url}#window.location"
     @iframe.setAttribute 'style', 'width:0;height:0;display:none'
     document.body.appendChild @iframe
 
