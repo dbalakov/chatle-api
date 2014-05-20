@@ -3,10 +3,13 @@ module 'Auth'
 test 'Constructor', ->
   throws (-> new ChatleClient.Auth), 'Constructor without ChatleClient throw exception'
   throws (-> new ChatleClient.Auth null), 'Call constructor with (client=null) throw exception'
-  key = 'key'
-  client = new ChatleClient key
+  client = new ChatleClient 'key'
+
   auth = new ChatleClient.Auth client
+
   equal auth.client, client, 'See valid client'
+
+  client.deactivate()
 
 test 'registerMobile', ->
   { key, number, callback } = { key : 'key', number : 'number', callback : -> }
@@ -32,12 +35,12 @@ test 'registerEmail', ->
 
   ok auth.client.transport.get.calledWith '/api/auth/email', { email : 'email' }, callback
 
-
 createAuth = (key)->
   client = new ChatleClient key
   client.transport.get = sinon.spy()
   client.transport.post = sinon.spy()
   client.transport.put = sinon.spy()
   client.transport.delete = sinon.spy()
+  client.deactivate()
 
   new ChatleClient.Auth client
