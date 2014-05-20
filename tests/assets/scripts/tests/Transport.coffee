@@ -20,7 +20,23 @@ test 'Constructor', ->
   transport.deactivate()
   window.addEventListener = addEventListener
 
-test "onmessage", ->
+test 'deactivate', ->
+  transport = new ChatleClient.Transport 'https://chatle.co/system/widgets/_out/api.html', 'key'
+  removeChild = transport.iframe.parentNode.removeChild
+  transport.iframe.parentNode.removeChild = sinon.spy()
+  removeEventListener = window.removeEventListener
+  window.removeEventListener = sinon.spy()
+
+  transport.deactivate()
+
+  ok window.removeEventListener.calledWith('message', transport.onmessage), 'Remove event listener'
+  ok transport.iframe.parentNode.removeChild.calledWith(transport.iframe), 'Remove iframe'
+
+  transport.iframe.parentNode.removeChild = removeChild
+  window.removeEventListener = removeEventListener
+  transport.deactivate()
+
+test 'onmessage', ->
   command_ok = { callback : sinon.spy() }
   command_error = { callback : sinon.spy() }
   data_ok = { }

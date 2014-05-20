@@ -11,7 +11,7 @@ class ChatleClient
   setAuthToken: (token)->
     @transport.authToken = token
 
-  deactivate: -> #TODO Test it
+  deactivate: ->
     @transport.deactivate()
 
 ChatleClient.DEFAULT_HOST = 'https://chatle.co/system/widgets/api/api.html'
