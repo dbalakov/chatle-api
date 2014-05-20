@@ -6,7 +6,10 @@ test 'Constructor', ->
   key = 'key'
   client = new ChatleClient key
   rooms = new ChatleClient.Rooms client
+
   equal rooms.client, client, 'See valid client'
+
+  client.deactivate()
 
 test 'list', ->
   callback = ->
@@ -98,5 +101,6 @@ createRooms = (key)->
   client.transport.post = sinon.spy()
   client.transport.put = sinon.spy()
   client.transport.delete = sinon.spy()
+  client.deactivate()
 
   new ChatleClient.Rooms client
