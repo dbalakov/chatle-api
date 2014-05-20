@@ -48,7 +48,7 @@ class Transport
   delete: (url, data, callback)->
     @sendCommand 'DELETE', url, data, callback
 
-  deactivate: ->
+  deactivate: -> #TODO Test it
     window.removeEventListener 'message', @onmessage
     @iframe.parentNode.removeChild @iframe
 

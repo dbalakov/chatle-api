@@ -8,8 +8,11 @@ class ChatleClient
     @rooms = new ChatleClient.Rooms @
     @users = new ChatleClient.Users @
 
-  setAuthToken: (token)-> #TODO Test it
+  setAuthToken: (token)->
     @transport.authToken = token
+
+  deactivate: -> #TODO Test it
+    @transport.deactivate()
 
 ChatleClient.DEFAULT_HOST = 'https://chatle.co/system/widgets/api/api.html'
 
