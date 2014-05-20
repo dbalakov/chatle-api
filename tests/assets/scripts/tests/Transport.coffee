@@ -4,6 +4,8 @@ test 'Constructor', ->
   throws (-> client = new ChatleClient.Transport), 'Constructor without frame_url throw exception'
   throws (-> client = new ChatleClient.Transport 'host'), 'Constructor without key throw exception'
 
+  addEventListener = window.addEventListener
+  window.addEventListener = sinon.spy()
   transport = new ChatleClient.Transport 'https://chatle.co/system/widgets/_out/api.html', 'key'
 
   equal transport.frame_url, 'https://chatle.co/system/widgets/_out/api.html', 'See valid frame_url'
@@ -11,59 +13,48 @@ test 'Constructor', ->
   equal transport.iframe.nodeType, 1, 'See valid iframe.nodeType'
   equal transport.iframe.tagName, 'IFRAME', 'See valid iframe.tagName'
   equal transport.iframe.parentNode, document.body, 'See valid iframe.parentNode'
-  equal transport.iframe.getAttribute('style'), 'width:0;height:0;display:none'
+  equal transport.iframe.getAttribute('style'), 'width:0;height:0;display:none', 'See valid style'
+  notEqual transport.id, null, 'See id'
+  ok window.addEventListener.calledWith('message', transport.onmessage), 'Event listener'
 
-asyncTest 'interval: call sendCommandToFrame', ->
+  transport.deactivate()
+  window.addEventListener = addEventListener
+
+test "onmessage", ->
+  command_ok = { callback : sinon.spy() }
+  command_error = { callback : sinon.spy() }
+  data_ok = { }
+
   transport = new ChatleClient.Transport 'https://chatle.co/system/widgets/_out/api.html', 'key'
-  called = false
-  transport.sendCommandToFrame = ->
-    return if called
-    called = true
-    ok (-> called), 'called'
+  transport.commands['command_ok_id'] = command_ok
+  transport.commands['command_error_id'] = command_error
 
-  setTimeout (-> start()), 1000
+  transport.onmessage { data : { id : 'command_ok_id', status : 'ok', data : data_ok } }
+  transport.onmessage { data : { id : 'command_error_id', status : 'error', errorStatus : 404 } }
 
-test "interval: transport busy - didn't call sendCommandToFrame", ->
+  ok command_ok.callback.calledWith(null, data_ok), 'Callback ok'
+  ok command_error.callback.calledWith(404, null), 'Callback error'
+
+  transport.deactivate()
+
+test 'generateGuid', ->
   transport = new ChatleClient.Transport 'https://chatle.co/system/widgets/_out/api.html', 'key'
-  transport.data = { hash : '' }
-  transport.sendCommandToFrame = sinon.spy()
-  transport.interval()
-  ok transport.sendCommandToFrame.notCalled, "didn't call sendCommandToFrame"
 
-test "interval: call callback with data", ->
-  data = { hash : '', callback : sinon.spy() }
-  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
-  transport.data = data
-  transport.iframe.src = 'http://localhost:3300/tests.html#{"status":"ok","data":{"a":1}}'
-  transport.interval()
-  ok data.callback.calledWith(null, { a : 1 }), 'Called with valid arguments'
+  equal transport.generateGuid().length, 32, 'GUID length'
 
-test "interval: call callback with error", ->
-  data = { hash : '', callback : sinon.spy() }
-  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
-  transport.data = data
-  transport.iframe.src = 'http://localhost:3300/tests.html#{"status":"error","errorStatus":404}'
-  transport.interval()
-  ok data.callback.calledWith(404, null), 'Called with valid arguments'
-
-test "sendCommandToFrame", ->
-  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
-  transport.queue.push { command : { type : 'get', url : 'api/url', data : 'data' } }
-
-  transport.sendCommandToFrame()
-
-  equal transport.iframe.src, 'http://localhost:3300/tests.html#{"type":"get","url":"api/url","data":"data"}', 'See valid iframe url'
-  equal transport.queue.length, 0, 'See valid queue'
+  transport.deactivate()
 
 test "sendCommand", ->
   callback = ->
   transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
-  transport.sendCommandToFrame = sinon.spy()
+  transport.iframe.contentWindow.postMessage = sinon.spy()
+  transport.authToken = 'api auth-token'
 
   transport.sendCommand 'GET', 'api/url', { a : 1 }, callback
 
-  deepEqual transport.queue, [ { command : { type : 'GET', url : 'api/url', data : { a : 1 }, headers : { "X-AppKey" : 'key' } }, callback : callback } ], 'See valid queue'
-  ok transport.sendCommandToFrame.calledOnce, 'sendCommandToFrame called'
+  ok transport.iframe.contentWindow.postMessage.calledWith { id : "#{transport.id}_0", type : 'GET', url : 'api/url', data : { a : 1 }, headers : { "X-AppKey" : 'key', 'X-Auth-Token' : 'api auth-token' } }, '*'
+
+  transport.deactivate()
 
 test 'get', ->
   callback = ->
@@ -74,6 +65,8 @@ test 'get', ->
 
   ok transport.sendCommand.calledWith('GET', 'api/url', { a : 1 }, callback), 'Called with valid arguments'
 
+  transport.deactivate()
+
 test 'post', ->
   callback = ->
   transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
@@ -82,6 +75,8 @@ test 'post', ->
   transport.post 'api/url', { a : 1 }, callback
 
   ok transport.sendCommand.calledWith('POST', 'api/url', { a : 1 }, callback), 'Called with valid arguments'
+
+  transport.deactivate()
 
 test 'put', ->
   callback = ->
@@ -92,6 +87,8 @@ test 'put', ->
 
   ok transport.sendCommand.calledWith('PUT', 'api/url', { a : 1 }, callback), 'Called with valid arguments'
 
+  transport.deactivate()
+
 test 'delete', ->
   callback = ->
   transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
@@ -100,3 +97,5 @@ test 'delete', ->
   transport.delete 'api/url', { a : 1 }, callback
 
   ok transport.sendCommand.calledWith('DELETE', 'api/url', { a : 1 }, callback), 'Called with valid arguments'
+
+  transport.deactivate()

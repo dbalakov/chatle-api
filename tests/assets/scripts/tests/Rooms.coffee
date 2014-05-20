@@ -29,7 +29,12 @@ test 'sendMessage', ->
 
   rooms.sendMessage id, message, callback
 
-  ok rooms.client.transport.post.calledWith '/api/rooms/room_id/message', { text : message }, callback
+  args = rooms.client.transport.post.getCall(0).args
+  ok rooms.client.transport.post.calledOnce, 'Post called'
+
+  equal args[0], '/api/rooms/room_id/message', 'Valid url'
+  equal args[1].message.text, message, 'Valid text'
+  equal args[2], callback, 'Valid callback'
 
 test 'deleteMessage', ->
   { id, message, callback } = { id : 'room_id', message : 'message_id', callback : -> }

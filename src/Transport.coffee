@@ -1,7 +1,4 @@
-#TODO Add init transport callback
-#TODO Add transport_id
-#TODO Remove add & add async
-#TODO Test it all :)
+GUID_CHARS = '0123456789QWERTYUIOPASDFGHJKLZXCVBNM'
 
 class Transport
   constructor: (@frame_url, @key)->
@@ -9,35 +6,35 @@ class Transport
     throw new Error('ChatleClient.Transport constructor call without key') if !@key?
 
     @iframe = document.createElement 'iframe'
-    @iframe.src = "#{@frame_url}#window.location"
+    @iframe.src = "#{@frame_url}##{window.location}"
     @iframe.setAttribute 'style', 'width:0;height:0;display:none'
     document.body.appendChild @iframe
 
-    @queue = []
-    @data = null
+    @id = @generateGuid()
+    @commands = { index : 0 }
 
-    window.addEventListener 'message', (event)=>
-      return unless @data?
-      result = event.data
-      data = @data
-      @data = null
-      data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
-      @sendCommandToFrame()
+    window.addEventListener 'message', @onmessage
 
-    setInterval @sendCommandToFrame, 100
+  onmessage: (event)=>
+    result = event.data
+    data = @commands[result.id]
+    return unless data?
+    delete @commands[result.id]
+    data.callback? (if result.status == 'ok' then null else result.errorStatus), (if result.status == 'ok' then result.data else null)
 
-  sendCommandToFrame: =>
-    return if @data? || @queue.length == 0
-    @data = @queue.shift()
-    if @authToken? #TODO Test it
-      @data.command.headers = {} unless @data.command.headers?
-      @data.command.headers['X-Auth-Token'] = @authToken
-
-    @iframe.contentWindow.postMessage(@data.command, '*');
+  generateGuid: ->
+    result = ''
+    result += GUID_CHARS[Math.round(Math.random() * (GUID_CHARS.length - 1))] for i in [0..31]
+    result
 
   sendCommand: (type, url, data, callback)->
-    @queue.push { command : { id : 1, type : type, url : url, data : data, headers : { "X-AppKey" : @key } }, callback : callback }
-    @sendCommandToFrame()
+    data = { command : { id : "#{@id}_#{@commands.index++}", type : type, url : url, data : data, headers : { "X-AppKey" : @key } }, callback : callback }
+    if @authToken?
+      data.command.headers = {} unless data.command.headers?
+      data.command.headers['X-Auth-Token'] = @authToken
+
+    @commands[data.command.id] = data
+    @iframe.contentWindow.postMessage(data.command, '*');
 
   get: (url, data, callback)->
     @sendCommand 'GET', url, data, callback
@@ -50,5 +47,10 @@ class Transport
 
   delete: (url, data, callback)->
     @sendCommand 'DELETE', url, data, callback
+
+  deactivate: ->
+    window.removeEventListener 'message', @onmessage
+    @iframe.parentNode.removeChild @iframe
+
 
 ChatleClient.Transport = Transport

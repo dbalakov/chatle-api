@@ -11,7 +11,6 @@ class Auth
   confirmCode: (confirmation_id, code, display_name, callback)->
     @client.transport.get "#{Auth.URL}#{Auth.CONFIRM_CODE_URL}", { confirmation_id : confirmation_id, code : code, display_name : display_name }, callback
 
-
 Auth.URL = '/api/auth/'
 
 Auth.REGISTER_MOBILE_URL = 'register_mobile'
