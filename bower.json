@@ -1,6 +1,6 @@
 {
   "name": "chatle-client",
-  "version": "0.2.23",
+  "version": "0.2.24",
   "dependencies": {
     "jquery": "~2.1.0",
     "qunit": "~1.14.0",
