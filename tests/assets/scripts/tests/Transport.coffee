@@ -13,12 +13,49 @@ test 'Constructor', ->
   equal transport.iframe.nodeType, 1, 'See valid iframe.nodeType'
   equal transport.iframe.tagName, 'IFRAME', 'See valid iframe.tagName'
   equal transport.iframe.parentNode, document.body, 'See valid iframe.parentNode'
+  equal transport.iframe.src, "https://chatle.co/system/widgets/_out/api.html##{transport.id}", 'See valid iframe.src'
   equal transport.iframe.getAttribute('style'), 'width:0;height:0;display:none', 'See valid style'
   notEqual transport.id, null, 'See id'
-  ok window.addEventListener.calledWith('message', transport.onmessage), 'Event listener'
+  ok window.addEventListener.calledWith('message', transport.onload), 'Event listener'
 
   transport.deactivate()
   window.addEventListener = addEventListener
+
+test 'onload: another id', ->
+  callback = ->
+  transport = new ChatleClient.Transport 'https://chatle.co/system/widgets/_out/api.html', 'key'
+  transport.sendCommand 'GET', 'api/url', { a : 1 }, callback
+
+  transport.onload({ data : { id : 'invalid id' } })
+
+  equal transport.loaded, false, 'loaded'
+  deepEqual transport.queue, [ { type : 'GET', url : 'api/url', data : { a : 1 }, callback : callback } ], 'See valid queue'
+
+  transport.deactivate()
+
+test 'onload: valid id', ->
+  callback = ->
+  post_callback = ->
+  transport = new ChatleClient.Transport 'https://chatle.co/system/widgets/_out/api.html', 'key'
+  transport.sendCommand 'GET', 'api/url', 'data', callback
+  transport.sendCommand 'POST', 'api/_url', 'post_data', post_callback
+  transport.sendCommand = sinon.spy()
+  removeEventListener = window.removeEventListener
+  window.removeEventListener = sinon.spy()
+  addEventListener = window.addEventListener
+  window.addEventListener = sinon.spy()
+
+  transport.onload({ data : { id : transport.id } })
+
+  equal transport.loaded, true, 'loaded'
+  deepEqual transport.queue, [], 'See valid queue'
+  ok transport.sendCommand.calledWith('GET', 'api/url', 'data', callback), 'Called get'
+  ok transport.sendCommand.calledWith('POST', 'api/_url', 'post_data', post_callback), 'Called post'
+  ok window.removeEventListener.calledWith('message', transport.onload), 'Remove event listener (onload)'
+
+  window.removeEventListener = removeEventListener
+  window.addEventListener = addEventListener
+  transport.deactivate()
 
 test 'deactivate', ->
   transport = new ChatleClient.Transport 'https://chatle.co/system/widgets/_out/api.html', 'key'
@@ -29,7 +66,8 @@ test 'deactivate', ->
 
   transport.deactivate()
 
-  ok window.removeEventListener.calledWith('message', transport.onmessage), 'Remove event listener'
+  ok window.removeEventListener.calledWith('message', transport.onload), 'Remove event listener (onload)'
+  ok window.removeEventListener.calledWith('message', transport.onmessage), 'Remove event listener (onmessage)'
   ok transport.iframe.parentNode.removeChild.calledWith(transport.iframe), 'Remove iframe'
 
   transport.iframe.parentNode.removeChild = removeChild
@@ -60,10 +98,24 @@ test 'generateGuid', ->
 
   transport.deactivate()
 
-test "sendCommand", ->
+test "sendCommand:not loaded", ->
   callback = ->
   transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
   transport.iframe.contentWindow.postMessage = sinon.spy()
+  transport.authToken = 'api auth-token'
+
+  transport.sendCommand 'GET', 'api/url', { a : 1 }, callback
+
+  ok transport.iframe.contentWindow.postMessage.notCalled, 'not called'
+  deepEqual transport.queue, [ { type : 'GET', url : 'api/url', data : { a : 1 }, callback : callback } ], 'See valid queue'
+
+  transport.deactivate()
+
+test "sendCommand:loaded", ->
+  callback = ->
+  transport = new ChatleClient.Transport 'http://localhost:3300/tests.html', 'key'
+  transport.iframe.contentWindow.postMessage = sinon.spy()
+  transport.loaded = true
   transport.authToken = 'api auth-token'
 
   transport.sendCommand 'GET', 'api/url', { a : 1 }, callback

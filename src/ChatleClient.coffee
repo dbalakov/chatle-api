@@ -1,8 +1,8 @@
 class ChatleClient
-  constructor: (@key, @host, @transport)->
+  constructor: (@key, @host, @transport, onload)->
     throw new Error('ChatleClient constructor call without api key') if !@key?
     @host = ChatleClient.DEFAULT_HOST if !@host?
-    @transport = new ChatleClient.Transport(@host, @key) if !@transport?
+    @transport = new ChatleClient.Transport(@host, @key, onload) if !@transport?
 
     @auth = new ChatleClient.Auth @
     @rooms = new ChatleClient.Rooms @

@@ -5,14 +5,29 @@ class Transport
     throw new Error('ChatleClient.Transport constructor call without frame_url') if !@frame_url?
     throw new Error('ChatleClient.Transport constructor call without key') if !@key?
 
+    @id = @generateGuid()
+    @loaded = false
+    @queue = []
+
     @iframe = document.createElement 'iframe'
-    @iframe.src = "#{@frame_url}##{window.location}"
+    @iframe.src = "#{@frame_url}##{@id}"
     @iframe.setAttribute 'style', 'width:0;height:0;display:none'
+
     document.body.appendChild @iframe
 
-    @id = @generateGuid()
     @commands = { index : 0 }
 
+    window.addEventListener 'message', @onload
+
+  onload: (event)=>
+    return if !event? || !event.data? || event.data.id != @id
+
+    @loaded = true
+    while @queue.length > 0
+      command = @queue.shift()
+      @sendCommand command.type, command.url, command.data, command.callback
+
+    window.removeEventListener 'message', @onload
     window.addEventListener 'message', @onmessage
 
   onmessage: (event)=>
@@ -28,6 +43,7 @@ class Transport
     result
 
   sendCommand: (type, url, data, callback)->
+    return @queue.push({ type, url, data, callback }) unless @loaded
     data = { command : { id : "#{@id}_#{@commands.index++}", type : type, url : url, data : data, headers : { "X-AppKey" : @key } }, callback : callback }
     if @authToken?
       data.command.headers = {} unless data.command.headers?
@@ -48,7 +64,8 @@ class Transport
   delete: (url, data, callback)->
     @sendCommand 'DELETE', url, data, callback
 
-  deactivate: -> #TODO Test it
+  deactivate: ->
+    window.removeEventListener 'message', @onload
     window.removeEventListener 'message', @onmessage
     @iframe.parentNode.removeChild @iframe
 
